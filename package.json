@@ -1,0 +1,9 @@
+{
+  "name": "newsroom-sites",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter './sites/*' build",
+    "dev": "pnpm --filter './sites/*' dev"
+  }
+}
