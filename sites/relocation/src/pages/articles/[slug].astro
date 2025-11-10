@@ -35,7 +35,7 @@ const articleResult = await sql`
     ) as hero_image
   FROM articles a
   WHERE a.slug = ${slug}
-    AND a.app = 'relocation'
+    AND a.app = 'placement'
   LIMIT 1
 `;
 
