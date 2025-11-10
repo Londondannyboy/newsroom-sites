@@ -10,8 +10,8 @@ if (!slug) {
 
 // Configure marked for better formatting
 marked.setOptions({
-  breaks: true,  // Convert \n to <br>
-  gfm: true,     // GitHub Flavored Markdown
+  breaks: false,  // Don't convert single \n to <br> (proper paragraph spacing)
+  gfm: true,      // GitHub Flavored Markdown
 });
 
 // Fetch the article with images
