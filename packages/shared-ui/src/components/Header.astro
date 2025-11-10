@@ -1,0 +1,24 @@
+---
+interface Props {
+  siteName: string;
+  brandColor?: string;
+}
+
+const { siteName, brandColor = 'blue' } = Astro.props;
+---
+
+<nav class="bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <h1 class={`text-2xl font-bold text-${brandColor}-600`}>
+          <a href="/">{siteName}</a>
+        </h1>
+      </div>
+      <div class="flex items-center space-x-8">
+        <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+        <a href="/articles" class="text-gray-700 hover:text-blue-600 font-medium">Articles</a>
+      </div>
+    </div>
+  </div>
+</nav>
