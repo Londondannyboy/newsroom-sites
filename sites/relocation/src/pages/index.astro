@@ -25,12 +25,12 @@ const articles = await sql`
     a.created_at,
     a.article_angle,
     (
-      SELECT json_agg(json_build_object('url', i.cloudinary_url, 'alt', i.primary_subject))
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
       FROM article_image_usage aiu
       JOIN images i ON i.id = aiu.image_id
-      WHERE aiu.article_id = a.id
+      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
       LIMIT 1
-    ) as images
+    ) as featured_image
   FROM articles a
   WHERE a.app = 'relocation'
     AND a.status = 'published'
@@ -225,8 +225,8 @@ const sections = {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map((article: any) => (
           <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            {article.images?.[0]?.url && (
-              <img src={article.images[0].url} alt={article.images[0].alt || article.title} class="w-full h-48 object-cover" />
+            {article.featured_image?.url && (
+              <img src={article.featured_image.url} alt={article.featured_image.alt || article.title} class="w-full h-48 object-cover" />
             )}
             <div class="p-6">
               {article.article_angle && (

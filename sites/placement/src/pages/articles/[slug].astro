@@ -20,12 +20,12 @@ const articleResult = await sql`
     a.article_angle,
     a.word_count,
     (
-      SELECT json_agg(json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text))
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
       FROM article_image_usage aiu
       JOIN images i ON i.id = aiu.image_id
-      WHERE aiu.article_id = a.id
-      ORDER BY aiu.position
-    ) as images
+      WHERE aiu.article_id = a.id AND aiu.role = 'hero'
+      LIMIT 1
+    ) as hero_image
   FROM articles a
   WHERE a.slug = ${slug}
     AND a.app = 'placement'
@@ -95,12 +95,12 @@ if (!article) {
           <span>{article.word_count} words</span>
         </div>
 
-        <!-- Featured Image -->
-        {article.images?.[0]?.url && (
+        <!-- Hero Image -->
+        {article.hero_image?.url && (
           <div class="mb-8">
             <img
-              src={article.images[0].url}
-              alt={article.images[0].alt || article.title}
+              src={article.hero_image.url}
+              alt={article.hero_image.alt || article.title}
               class="w-full h-auto rounded-lg shadow-lg"
             />
           </div>
