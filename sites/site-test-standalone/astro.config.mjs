@@ -9,5 +9,8 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone'
   }),
-  integrations: [tailwind()]
+  integrations: [tailwind()],
+  server: {
+    host: true // Listen on all network interfaces (0.0.0.0)
+  }
 });
