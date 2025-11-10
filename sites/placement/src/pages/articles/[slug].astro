@@ -1,11 +1,18 @@
 ---
 import { sql } from '../../lib/db';
+import { marked } from 'marked';
 
 const { slug } = Astro.params;
 
 if (!slug) {
   return Astro.redirect('/');
 }
+
+// Configure marked for better formatting
+marked.setOptions({
+  breaks: true,  // Convert \n to <br>
+  gfm: true,     // GitHub Flavored Markdown
+});
 
 // Fetch the article with images
 const articleResult = await sql`
@@ -37,6 +44,9 @@ const article = articleResult[0];
 if (!article) {
   return Astro.redirect('/');
 }
+
+// Parse markdown to HTML
+const html = marked(article.content);
 ---
 
 <!DOCTYPE html>
@@ -110,7 +120,7 @@ if (!article) {
       <!-- Article Body -->
       <div class="bg-white rounded-lg shadow-sm p-8 md:p-12">
         <div
-          set:html={article.content}
+          set:html={html}
           class="prose prose-lg prose-blue max-w-none
                  prose-headings:font-bold prose-headings:text-gray-900
                  prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
