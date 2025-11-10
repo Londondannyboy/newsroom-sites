@@ -25,7 +25,7 @@ const articles = await sql`
     a.created_at,
     a.article_angle,
     (
-      SELECT json_agg(json_build_object('url', i.url, 'alt', i.alt_text))
+      SELECT json_agg(json_build_object('url', i.cloudinary_url, 'alt', i.primary_subject))
       FROM article_image_usage aiu
       JOIN images i ON i.id = aiu.image_id
       WHERE aiu.article_id = a.id
