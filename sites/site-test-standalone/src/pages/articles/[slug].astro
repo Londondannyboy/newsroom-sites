@@ -1,0 +1,115 @@
+---
+import { sql } from '../../lib/db';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/');
+}
+
+// Fetch the article
+const articleResult = await sql`
+  SELECT
+    id,
+    title,
+    content,
+    excerpt,
+    slug,
+    published_at,
+    created_at,
+    article_angle,
+    word_count
+  FROM articles
+  WHERE slug = ${slug}
+    AND app = 'placement'
+  LIMIT 1
+`;
+
+const article = articleResult[0];
+
+if (!article) {
+  return Astro.redirect('/');
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{article.title} - Placement</title>
+  <meta name="description" content={article.excerpt || article.title}>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-blue-600">
+            <a href="/">Placement</a>
+          </h1>
+        </div>
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+          <a href="/articles" class="text-gray-700 hover:text-blue-600 font-medium">Articles</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Article Content -->
+  <article class="py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Article Header -->
+      <header class="mb-8">
+        {article.article_angle && (
+          <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded mb-4">
+            {article.article_angle}
+          </span>
+        )}
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          {article.title}
+        </h1>
+        {article.excerpt && (
+          <p class="text-xl text-gray-600 mb-6">
+            {article.excerpt}
+          </p>
+        )}
+        <div class="flex items-center text-sm text-gray-500 space-x-4">
+          <time datetime={article.published_at || article.created_at}>
+            {new Date(article.published_at || article.created_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+          <span>•</span>
+          <span>{article.word_count} words</span>
+        </div>
+      </header>
+
+      <!-- Article Body -->
+      <div class="prose prose-lg prose-blue max-w-none">
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <div set:html={article.content} class="text-gray-800 leading-relaxed" />
+        </div>
+      </div>
+
+      <!-- Back Link -->
+      <div class="mt-12">
+        <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+          ← Back to articles
+        </a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-gray-400">© {new Date().getFullYear()} Placement. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

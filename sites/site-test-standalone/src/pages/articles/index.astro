@@ -1,20 +1,7 @@
 ---
-import { sql } from '../lib/db';
+import { sql } from '../../lib/db';
 
-// Fetch homepage content
-const homepageContent = await sql`
-  SELECT
-    section_type,
-    title,
-    subtitle,
-    content
-  FROM homepage_content
-  WHERE site = 'placement'
-    AND is_active = true
-  ORDER BY section_order ASC
-`;
-
-// Fetch articles
+// Fetch all published articles
 const articles = await sql`
   SELECT
     id,
@@ -23,15 +10,13 @@ const articles = await sql`
     slug,
     published_at,
     created_at,
-    article_angle
+    article_angle,
+    word_count
   FROM articles
   WHERE app = 'placement'
     AND status = 'published'
   ORDER BY published_at DESC NULLS LAST, created_at DESC
-  LIMIT 6
 `;
-
-const heroSection = homepageContent.find((section: any) => section.section_type === 'hero');
 ---
 
 <!DOCTYPE html>
@@ -39,7 +24,7 @@ const heroSection = homepageContent.find((section: any) => section.section_type 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Placement - Your Source for Industry News</title>
+  <title>All Articles - Placement</title>
 </head>
 <body class="bg-gray-50">
   <!-- Navigation -->
@@ -47,7 +32,9 @@ const heroSection = homepageContent.find((section: any) => section.section_type 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
         <div class="flex items-center">
-          <h1 class="text-2xl font-bold text-blue-600">Placement</h1>
+          <h1 class="text-2xl font-bold text-blue-600">
+            <a href="/">Placement</a>
+          </h1>
         </div>
         <div class="flex items-center space-x-8">
           <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
@@ -57,32 +44,17 @@ const heroSection = homepageContent.find((section: any) => section.section_type 
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  {heroSection && (
-    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <h2 class="text-4xl md:text-5xl font-bold mb-4">
-            {heroSection.title || 'Welcome to Placement'}
-          </h2>
-          <p class="text-xl md:text-2xl text-blue-100 mb-8">
-            {heroSection.subtitle || 'Your trusted source for industry insights and news'}
-          </p>
-          {heroSection.content?.description && (
-            <p class="text-lg text-blue-50 max-w-3xl mx-auto">
-              {heroSection.content.description}
-            </p>
-          )}
-        </div>
-      </div>
-    </section>
-  )}
-
-  <!-- Latest Articles -->
-  <section class="py-16">
+  <!-- Articles Header -->
+  <section class="bg-white py-12 border-b">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-8">Latest Articles</h2>
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">All Articles</h1>
+      <p class="text-lg text-gray-600">Browse our complete collection of industry insights and news</p>
+    </div>
+  </section>
 
+  <!-- Articles Grid -->
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map((article: any) => (
           <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -92,11 +64,11 @@ const heroSection = homepageContent.find((section: any) => section.section_type 
                   {article.article_angle}
                 </span>
               )}
-              <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+              <h2 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
                 <a href={`/articles/${article.slug}`} class="hover:text-blue-600">
                   {article.title}
                 </a>
-              </h3>
+              </h2>
               {article.excerpt && (
                 <p class="text-gray-600 mb-4 line-clamp-3">
                   {article.excerpt}
