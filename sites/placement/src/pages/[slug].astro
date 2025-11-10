@@ -27,7 +27,7 @@ const articleResult = await sql`
     a.article_angle,
     a.word_count,
     (
-      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text, 'caption', i.caption)
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
       FROM article_image_usage aiu
       JOIN images i ON i.id = aiu.image_id
       WHERE aiu.article_id = a.id AND aiu.role = 'hero'
@@ -35,7 +35,7 @@ const articleResult = await sql`
     ) as hero_image
   FROM articles a
   WHERE a.slug = ${slug}
-    AND a.app = 'relocation'
+    AND a.app = 'placement'
   LIMIT 1
 `;
 
@@ -54,7 +54,7 @@ const html = marked(article.content);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{article.title} - Relocation</title>
+  <title>{article.title} - Placement</title>
   <meta name="description" content={article.excerpt || article.title}>
 </head>
 <body class="bg-gray-50">
@@ -64,7 +64,7 @@ const html = marked(article.content);
       <div class="flex justify-between h-16">
         <div class="flex items-center">
           <h1 class="text-2xl font-bold text-blue-600">
-            <a href="/">Relocation</a>
+            <a href="/">Placement</a>
           </h1>
         </div>
         <div class="flex items-center space-x-8">
@@ -113,9 +113,6 @@ const html = marked(article.content);
               alt={article.hero_image.alt || article.title}
               class="w-full h-auto rounded-lg shadow-lg"
             />
-            {article.hero_image.caption && (
-              <p class="text-sm text-gray-600 mt-2 text-center italic">{article.hero_image.caption}</p>
-            )}
           </div>
         )}
       </header>
@@ -151,7 +148,7 @@ const html = marked(article.content);
   <!-- Footer -->
   <footer class="bg-gray-900 text-white py-12 mt-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-gray-400">© {new Date().getFullYear()} Relocation. All rights reserved.</p>
+      <p class="text-gray-400">© {new Date().getFullYear()} Placement. All rights reserved.</p>
     </div>
   </footer>
 </body>

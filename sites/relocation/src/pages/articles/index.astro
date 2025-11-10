@@ -65,7 +65,7 @@ const articles = await sql`
                 </span>
               )}
               <h2 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
-                <a href={`/articles/${article.slug}`} class="hover:text-blue-600">
+                <a href={`/${article.slug}`} class="hover:text-blue-600">
                   {article.title}
                 </a>
               </h2>
@@ -82,7 +82,7 @@ const articles = await sql`
                     day: 'numeric'
                   })}
                 </time>
-                <a href={`/articles/${article.slug}`} class="text-blue-600 hover:text-blue-800 font-medium">
+                <a href={`/${article.slug}`} class="text-blue-600 hover:text-blue-800 font-medium">
                   Read more →
                 </a>
               </div>
