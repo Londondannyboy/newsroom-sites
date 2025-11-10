@@ -14,7 +14,7 @@ const homepageContent = await sql`
   ORDER BY section_order ASC
 `;
 
-// Fetch articles with images
+// Fetch articles with images - supporting both JSONB column and legacy tables
 const articles = await sql`
   SELECT
     a.id,
@@ -24,13 +24,14 @@ const articles = await sql`
     a.published_at,
     a.created_at,
     a.article_angle,
+    a.images,
     (
       SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
       FROM article_image_usage aiu
       JOIN images i ON i.id = aiu.image_id
       WHERE aiu.article_id = a.id AND aiu.role = 'featured'
       LIMIT 1
-    ) as featured_image
+    ) as featured_image_legacy
   FROM articles a
   WHERE a.app = 'placement'
     AND a.status = 'published'
@@ -225,8 +226,8 @@ const sections = {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map((article: any) => (
           <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            {article.featured_image?.url && (
-              <img src={article.featured_image.url} alt={article.featured_image.alt || article.title} class="w-full h-48 object-cover" />
+            {(article.images?.featured || article.featured_image_legacy?.url) && (
+              <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
             )}
             <div class="p-6">
               {article.article_angle && (

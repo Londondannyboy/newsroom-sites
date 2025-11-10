@@ -14,7 +14,7 @@ marked.setOptions({
   gfm: true,      // GitHub Flavored Markdown
 });
 
-// Fetch the article with images from articles.images JSONB column
+// Fetch the article with images - supporting both JSONB column and legacy tables
 const articleResult = await sql`
   SELECT
     a.id,
@@ -26,7 +26,21 @@ const articleResult = await sql`
     a.created_at,
     a.article_angle,
     a.word_count,
-    a.images
+    a.images,
+    (
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
+      FROM article_image_usage aiu
+      JOIN images i ON i.id = aiu.image_id
+      WHERE aiu.article_id = a.id AND aiu.role = 'hero'
+      LIMIT 1
+    ) as hero_image_legacy,
+    (
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
+      FROM article_image_usage aiu
+      JOIN images i ON i.id = aiu.image_id
+      WHERE aiu.article_id = a.id AND aiu.role = 'content'
+      LIMIT 1
+    ) as content_image_legacy
   FROM articles a
   WHERE a.slug = ${slug}
     AND a.app = 'placement'
@@ -99,12 +113,12 @@ const html = marked(article.content);
           <span>{article.word_count} words</span>
         </div>
 
-        <!-- Hero Image -->
-        {article.images?.hero && (
+        <!-- Hero Image - Check both new JSONB column and legacy tables -->
+        {(article.images?.hero || article.hero_image_legacy?.url) && (
           <div class="mb-8">
             <img
-              src={article.images.hero}
-              alt={article.title}
+              src={article.images?.hero || article.hero_image_legacy.url}
+              alt={article.hero_image_legacy?.alt || article.title}
               class="w-full h-auto rounded-lg shadow-lg"
             />
           </div>
@@ -128,6 +142,17 @@ const html = marked(article.content);
                  prose-blockquote:border-l-4 prose-blockquote:border-blue-600 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:my-8
                  prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
         />
+
+        <!-- Content Image (displayed mid-article) -->
+        {(article.images?.content || article.content_image_legacy?.url) && (
+          <figure class="my-12">
+            <img
+              src={article.images?.content || article.content_image_legacy.url}
+              alt={article.content_image_legacy?.alt || `${article.title} - additional context`}
+              class="w-full h-auto rounded-lg shadow-lg"
+            />
+          </figure>
+        )}
       </div>
 
       <!-- Back Link -->
