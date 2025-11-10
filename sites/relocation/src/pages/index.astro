@@ -1,7 +1,7 @@
 ---
 import { sql } from '../lib/db';
 
-// Fetch homepage content (TEMP: using placement data)
+// Fetch homepage content for relocation
 const homepageContent = await sql`
   SELECT
     section_type,
@@ -9,7 +9,7 @@ const homepageContent = await sql`
     subtitle,
     content
   FROM homepage_content
-  WHERE site = 'placement'
+  WHERE site = 'relocation'
     AND is_active = true
   ORDER BY section_order ASC
 `;
@@ -42,7 +42,7 @@ const sections = {
   hero: homepageContent.find((s: any) => s.section_type === 'hero'),
   intro: homepageContent.find((s: any) => s.section_type === 'intro'),
   role: homepageContent.find((s: any) => s.section_type === 'role'),
-  topAgents: homepageContent.find((s: any) => s.section_type === 'top_agents'),
+  topAgents: homepageContent.find((s: any) => s.section_type === 'top_companies'),
   howItWorks: homepageContent.find((s: any) => s.section_type === 'how_it_works'),
   feeStructures: homepageContent.find((s: any) => s.section_type === 'fee_structures'),
   selection: homepageContent.find((s: any) => s.section_type === 'selection'),
@@ -147,14 +147,14 @@ const sections = {
           {sections.topAgents.subtitle && <p class="text-xl text-gray-600">{sections.topAgents.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.topAgents.content?.firms?.slice(0, 10).map((firm: any) => (
+          {sections.topAgents.content?.companies?.slice(0, 10).map((company: any) => (
             <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-              <h3 class="text-xl font-bold text-gray-900 mb-2">{firm.name}</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">{company.name}</h3>
               <div class="flex items-center gap-4 mb-3 text-sm flex-wrap">
-                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">{firm.fees}</span>
-                <span class="text-gray-600">Min: {firm.minimum}</span>
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">{company.volume}</span>
+                <span class="text-gray-600">Min: {company.minimum}</span>
               </div>
-              <p class="text-gray-700 text-sm leading-relaxed">{firm.description}</p>
+              <p class="text-gray-700 text-sm leading-relaxed">{company.description}</p>
             </div>
           ))}
         </div>
