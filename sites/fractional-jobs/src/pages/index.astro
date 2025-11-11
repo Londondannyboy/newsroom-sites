@@ -1,0 +1,294 @@
+---
+import { sql } from '../lib/db';
+
+// Fetch homepage content
+const homepageContent = await sql`
+  SELECT
+    section_type,
+    title,
+    subtitle,
+    content
+  FROM homepage_content
+  WHERE site = 'fractional-jobs'
+    AND is_active = true
+  ORDER BY section_order ASC
+`;
+
+// Fetch articles with images
+const articles = await sql`
+  SELECT
+    a.id,
+    a.title,
+    a.excerpt,
+    a.slug,
+    a.published_at,
+    a.created_at,
+    a.article_angle,
+    a.images,
+    (
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
+      FROM article_image_usage aiu
+      JOIN images i ON i.id = aiu.image_id
+      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
+      LIMIT 1
+    ) as featured_image_legacy
+  FROM articles a
+  WHERE a.app = 'fractional-jobs'
+    AND a.status = 'published'
+  ORDER BY a.published_at DESC NULLS LAST, a.created_at DESC
+  LIMIT 6
+`;
+
+const sections = {
+  hero: homepageContent.find((s: any) => s.section_type === 'hero'),
+  intro: homepageContent.find((s: any) => s.section_type === 'intro'),
+  benefits: homepageContent.find((s: any) => s.section_type === 'benefits'),
+  roles: homepageContent.find((s: any) => s.section_type === 'roles'),
+  howItWorks: homepageContent.find((s: any) => s.section_type === 'how_it_works'),
+  faq: homepageContent.find((s: any) => s.section_type === 'faq')
+};
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fractional Jobs UK - Find Flexible Executive Roles | Fractional Jobs</title>
+  <meta name="description" content="Discover fractional jobs in the UK. Connect with top companies hiring for fractional executive roles. Your guide to flexible, part-time leadership opportunities.">
+  <meta name="keywords" content="fractional jobs, fractional jobs UK, fractional executive roles, part-time executive jobs, fractional CFO jobs, fractional CMO jobs">
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-purple-600">Fractional Jobs</h1>
+        </div>
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-purple-600 font-medium">Home</a>
+          <a href="/articles" class="text-gray-700 hover:text-purple-600 font-medium">Articles</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  {sections.hero && (
+    <section class="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-4xl mx-auto">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            {sections.hero.title}
+          </h2>
+          <p class="text-xl md:text-2xl text-purple-100 mb-8 leading-relaxed">
+            {sections.hero.subtitle}
+          </p>
+          {sections.hero.content?.cta_text && (
+            <div class="bg-purple-900/50 rounded-lg p-6 mt-8">
+              <h3 class="text-2xl font-semibold mb-2">{sections.hero.content.cta_text}</h3>
+              {sections.hero.content.cta_description && (
+                <p class="text-purple-100">{sections.hero.content.cta_description}</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Intro Section -->
+  {sections.intro && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">{sections.intro.title}</h2>
+        <div class="prose prose-lg max-w-none space-y-4">
+          {sections.intro.content?.paragraphs?.map((para: any) => (
+            <p class="text-gray-700 leading-relaxed">{para.text}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Benefits Section -->
+  {sections.benefits && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.benefits.title}</h2>
+          {sections.benefits.subtitle && <p class="text-xl text-gray-600">{sections.benefits.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sections.benefits.content?.items?.map((item: any) => (
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">{item.title}</h3>
+              <p class="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+            </div>
+          ))}
+        </div>
+        {sections.benefits.content?.summary && (
+          <div class="mt-8 bg-purple-50 p-6 rounded-lg">
+            <p class="text-gray-700 leading-relaxed">{sections.benefits.content.summary}</p>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Roles Section -->
+  {sections.roles && (
+    <section class="py-16 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.roles.title}</h2>
+          {sections.roles.subtitle && <p class="text-xl text-gray-600">{sections.roles.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {sections.roles.content?.items?.map((item: any) => (
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h3 class="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+              <p class="text-gray-600 leading-relaxed">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- How It Works Section -->
+  {sections.howItWorks && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.howItWorks.title}</h2>
+          {sections.howItWorks.subtitle && <p class="text-xl text-gray-600">{sections.howItWorks.subtitle}</p>}
+        </div>
+        <div class="space-y-6">
+          {sections.howItWorks.content?.phases?.map((phase: any, index: number) => (
+            <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-600">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                  {index + 1}
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900 mb-2">{phase.name}</h3>
+                  <p class="text-gray-700 leading-relaxed">{phase.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {sections.howItWorks.content?.summary && (
+          <div class="mt-8 bg-purple-50 p-6 rounded-lg">
+            <p class="text-gray-700 font-semibold">{sections.howItWorks.content.summary}</p>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- FAQ Section -->
+  {sections.faq && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.faq.title}</h2>
+          {sections.faq.subtitle && <p class="text-xl text-gray-600">{sections.faq.subtitle}</p>}
+        </div>
+        <div class="space-y-6">
+          {sections.faq.content?.questions?.map((item: any) => (
+            <div class="bg-gray-50 p-6 rounded-lg">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">{item.question}</h3>
+              <p class="text-gray-700 leading-relaxed">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Latest Articles -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8">Latest Articles About Fractional Jobs</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {articles.map((article: any) => (
+          <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            {(article.images?.featured || article.featured_image_legacy?.url) && (
+              <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
+            )}
+            <div class="p-6">
+              {article.article_angle && (
+                <span class="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded mb-3">
+                  {article.article_angle}
+                </span>
+              )}
+              <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                <a href={`/${article.slug}`} class="hover:text-purple-600">
+                  {article.title}
+                </a>
+              </h3>
+              {article.excerpt && (
+                <p class="text-gray-600 mb-4 line-clamp-3">
+                  {article.excerpt}
+                </p>
+              )}
+              <div class="flex items-center justify-between text-sm text-gray-500">
+                <time datetime={article.published_at || article.created_at}>
+                  {new Date(article.published_at || article.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+                <a href={`/${article.slug}`} class="text-purple-600 hover:text-purple-800 font-medium">
+                  Read more →
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {articles.length === 0 && (
+        <div class="text-center py-12">
+          <p class="text-gray-600 text-lg">No articles published yet. Check back soon!</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4">Fractional Jobs</h3>
+          <p class="text-gray-400 text-sm">Your complete guide to fractional jobs in the UK and beyond. Find flexible executive opportunities.</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4">Navigate</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/" class="text-gray-400 hover:text-white">Home</a></li>
+            <li><a href="/articles" class="text-gray-400 hover:text-white">Articles</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4">Popular Topics</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/articles" class="text-gray-400 hover:text-white">Fractional CFO Jobs</a></li>
+            <li><a href="/articles" class="text-gray-400 hover:text-white">Fractional CMO Roles</a></li>
+            <li><a href="/articles" class="text-gray-400 hover:text-white">UK Opportunities</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 text-center">
+        <p class="text-gray-400 text-sm">© {new Date().getFullYear()} Fractional Jobs. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
