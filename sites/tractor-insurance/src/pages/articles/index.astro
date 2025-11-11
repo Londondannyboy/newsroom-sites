@@ -1,0 +1,97 @@
+---
+import { sql } from '../../lib/db';
+
+// Fetch all published articles
+const articles = await sql`
+  SELECT
+    id,
+    title,
+    excerpt,
+    slug,
+    published_at,
+    created_at,
+    article_angle,
+    word_count
+  FROM articles
+  WHERE app = 'tractor-insurance'
+    AND status = 'published'
+  ORDER BY published_at DESC NULLS LAST, created_at DESC
+`;
+---
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tractor Insurance Articles & Guides - TractorInsurance.uk</title>
+  <meta name="description" content="Browse our comprehensive collection of tractor insurance articles, guides, and resources for UK farmers.">
+  <link rel="canonical" href="https://tractorinsurance.uk/articles">
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-primary">
+          <a href="/">TractorInsurance.uk</a>
+        </h1>
+        <nav class="hidden md:flex space-x-8">
+          <a href="/" class="text-gray-700 hover:text-primary">Home</a>
+          <a href="/articles" class="text-primary font-medium">Articles</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Articles List -->
+  <main class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-8">Tractor Insurance Articles</h1>
+
+      {articles.length === 0 ? (
+        <div class="text-center py-12">
+          <p class="text-xl text-gray-600">No articles published yet. Check back soon!</p>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {articles.map((article: any) => (
+            <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">
+                  <a href={`/${article.slug}`} class="hover:text-primary">{article.title}</a>
+                </h2>
+                {article.excerpt && (
+                  <p class="text-gray-600 mb-4">{article.excerpt}</p>
+                )}
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <time datetime={article.published_at || article.created_at}>
+                    {new Date(article.published_at || article.created_at).toLocaleDateString('en-GB', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                  {article.word_count && <span>{article.word_count} words</span>}
+                </div>
+                <a href={`/${article.slug}`} class="inline-block mt-4 text-primary hover:text-secondary font-medium">
+                  Read more →
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-gray-400">&copy; 2025 TractorInsurance.uk. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

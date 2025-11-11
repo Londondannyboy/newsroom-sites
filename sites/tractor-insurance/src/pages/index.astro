@@ -1,0 +1,236 @@
+---
+import { sql } from '../lib/db';
+
+// Fetch homepage content sections
+const homepageContent = await sql`
+  SELECT
+    section_type,
+    title,
+    subtitle,
+    content
+  FROM homepage_content
+  WHERE site = 'tractor-insurance'
+    AND is_active = true
+  ORDER BY section_order ASC
+`;
+
+// Fetch recent articles
+const articles = await sql`
+  SELECT
+    id,
+    title,
+    excerpt,
+    slug,
+    published_at,
+    created_at
+  FROM articles
+  WHERE app = 'tractor-insurance'
+    AND status = 'published'
+  ORDER BY published_at DESC NULLS LAST, created_at DESC
+  LIMIT 6
+`;
+
+// Convert array of objects to a map by section_type
+const sections = homepageContent.reduce((acc: any, section: any) => {
+  acc[section.section_type] = section;
+  return acc;
+}, {});
+
+const hero = sections.hero || {};
+const intro = sections.intro || {};
+const coverage = sections.coverage || {};
+const whyChoose = sections.why_choose || {};
+const howItWorks = sections.how_it_works || {};
+const faq = sections.faq || {};
+---
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{hero.title || 'Tractor Insurance UK - Compare Quotes & Save'}</title>
+  <meta name="description" content={hero.subtitle || 'Get comprehensive tractor insurance in the UK. Compare quotes, find the best coverage for your agricultural machinery, and save on premiums.'}>
+  <link rel="canonical" href="https://tractorinsurance.uk/">
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-primary">TractorInsurance.uk</h1>
+        <nav class="hidden md:flex space-x-8">
+          <a href="/" class="text-gray-700 hover:text-primary">Home</a>
+          <a href="/articles" class="text-gray-700 hover:text-primary">Articles</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-primary to-secondary text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+          {hero.title || 'Comprehensive Tractor Insurance for UK Farmers'}
+        </h2>
+        <p class="text-xl md:text-2xl mb-8 text-green-50">
+          {hero.subtitle || 'Protect your agricultural machinery with tailored insurance coverage'}
+        </p>
+        {hero.content?.text && (
+          <p class="text-lg text-green-50 max-w-3xl mx-auto">{hero.content.text}</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Introduction Section -->
+  {intro.title && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">{intro.title}</h2>
+        {intro.subtitle && <p class="text-xl text-gray-600 mb-6">{intro.subtitle}</p>}
+        {intro.content?.paragraphs && (
+          <div class="prose prose-lg max-w-none">
+            {intro.content.paragraphs.map((paragraph: string) => (
+              <p class="mb-4">{paragraph}</p>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Coverage Section -->
+  {coverage.title && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">{coverage.title}</h2>
+        {coverage.subtitle && (
+          <p class="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">{coverage.subtitle}</p>
+        )}
+        {coverage.content?.items && (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {coverage.content.items.map((item: any) => (
+              <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                <h3 class="text-xl font-semibold text-primary mb-3">{item.title}</h3>
+                <p class="text-gray-700">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Why Choose Section -->
+  {whyChoose.title && (
+    <section class="py-16 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">{whyChoose.title}</h2>
+        {whyChoose.subtitle && (
+          <p class="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">{whyChoose.subtitle}</p>
+        )}
+        {whyChoose.content?.items && (
+          <div class="space-y-6 max-w-4xl mx-auto">
+            {whyChoose.content.items.map((item: any, index: number) => (
+              <div class="flex items-start">
+                <div class="flex-shrink-0 bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">
+                  {index + 1}
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                  <p class="text-gray-700">{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- How It Works Section -->
+  {howItWorks.title && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">{howItWorks.title}</h2>
+        {howItWorks.subtitle && (
+          <p class="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">{howItWorks.subtitle}</p>
+        )}
+        {howItWorks.content?.steps && (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorks.content.steps.map((step: any) => (
+              <div class="text-center">
+                <div class="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  {step.number}
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
+                <p class="text-gray-700">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- FAQ Section -->
+  {faq.title && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-12 text-center">{faq.title}</h2>
+        {faq.content?.questions && (
+          <div class="space-y-6">
+            {faq.content.questions.map((item: any, index: number) => (
+              <div class={index < faq.content.questions.length - 1 ? 'border-b border-gray-200 pb-6' : 'pb-6'}>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">{item.question}</h3>
+                <p class="text-gray-700">{item.answer}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Recent Articles Section -->
+  {articles.length > 0 && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-12 text-center">Latest Tractor Insurance Articles</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {articles.map((article: any) => (
+            <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div class="p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                  <a href={`/${article.slug}`} class="hover:text-primary">{article.title}</a>
+                </h3>
+                <p class="text-gray-600 mb-4">{article.excerpt}</p>
+                <a href={`/${article.slug}`} class="text-primary hover:text-secondary font-medium">
+                  Read more →
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div class="text-center mt-12">
+          <a href="/articles" class="inline-block bg-primary text-white px-8 py-3 rounded-lg hover:bg-secondary transition-colors font-medium">
+            View All Articles
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-gray-400">&copy; 2025 TractorInsurance.uk. All rights reserved.</p>
+        <p class="text-gray-500 text-sm mt-2">Comprehensive tractor insurance coverage for UK farmers and agricultural businesses.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

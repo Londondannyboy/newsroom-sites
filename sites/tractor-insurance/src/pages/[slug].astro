@@ -1,0 +1,147 @@
+---
+import { sql } from '../lib/db';
+import { marked } from 'marked';
+
+const { slug } = Astro.params;
+
+// Fetch article
+const articles = await sql`
+  SELECT
+    id,
+    title,
+    excerpt,
+    slug,
+    content,
+    published_at,
+    created_at,
+    updated_at,
+    article_angle,
+    word_count,
+    images
+  FROM articles
+  WHERE app = 'tractor-insurance'
+    AND slug = ${slug}
+    AND status = 'published'
+  LIMIT 1
+`;
+
+const article = articles[0];
+
+if (!article) {
+  return Astro.redirect('/404');
+}
+
+// Parse markdown content to HTML
+const htmlContent = marked.parse(article.content || '');
+
+// Handle images from JSONB column
+let images = [];
+if (article.images && typeof article.images === 'object') {
+  images = Array.isArray(article.images) ? article.images : [article.images];
+}
+---
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{article.title} - TractorInsurance.uk</title>
+  <meta name="description" content={article.excerpt || article.title}>
+  <link rel="canonical" href={`https://tractorinsurance.uk/${article.slug}`}>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-primary">
+          <a href="/">TractorInsurance.uk</a>
+        </h1>
+        <nav class="hidden md:flex space-x-8">
+          <a href="/" class="text-gray-700 hover:text-primary">Home</a>
+          <a href="/articles" class="text-gray-700 hover:text-primary">Articles</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Article Content -->
+  <article class="py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Article Header -->
+      <header class="mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{article.title}</h1>
+        {article.excerpt && (
+          <p class="text-xl text-gray-600 mb-6">{article.excerpt}</p>
+        )}
+        <div class="flex items-center text-gray-500 text-sm">
+          <time datetime={article.published_at || article.created_at}>
+            {new Date(article.published_at || article.created_at).toLocaleDateString('en-GB', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+          {article.word_count && (
+            <>
+              <span class="mx-2">•</span>
+              <span>{article.word_count} words</span>
+            </>
+          )}
+        </div>
+      </header>
+
+      <!-- Article Images -->
+      {images.length > 0 && (
+        <div class="mb-8">
+          {images.map((image: any) => (
+            <figure class="mb-6">
+              <img
+                src={image.url}
+                alt={image.alt || article.title}
+                class="w-full rounded-lg shadow-lg"
+              />
+              {image.caption && (
+                <figcaption class="text-sm text-gray-600 mt-2 text-center">{image.caption}</figcaption>
+              )}
+            </figure>
+          ))}
+        </div>
+      )}
+
+      <!-- Article Body -->
+      <div class="prose prose-lg prose-green max-w-none">
+        <div set:html={htmlContent}></div>
+      </div>
+
+      <!-- Article Footer -->
+      <footer class="mt-12 pt-8 border-t border-gray-200">
+        <div class="flex justify-between items-center">
+          <a href="/articles" class="text-primary hover:text-secondary font-medium">
+            ← Back to all articles
+          </a>
+          {article.updated_at && article.updated_at !== article.created_at && (
+            <p class="text-sm text-gray-500">
+              Last updated: {new Date(article.updated_at).toLocaleDateString('en-GB', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </p>
+          )}
+        </div>
+      </footer>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-gray-400">&copy; 2025 TractorInsurance.uk. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
