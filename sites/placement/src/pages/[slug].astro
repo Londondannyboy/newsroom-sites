@@ -40,7 +40,14 @@ const articleResult = await sql`
       JOIN images i ON i.id = aiu.image_id
       WHERE aiu.article_id = a.id AND aiu.role = 'content'
       LIMIT 1
-    ) as content_image_legacy
+    ) as content_image_legacy,
+    (
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
+      FROM article_image_usage aiu
+      JOIN images i ON i.id = aiu.image_id
+      WHERE aiu.article_id = a.id AND aiu.role = 'content2'
+      LIMIT 1
+    ) as content2_image_legacy
   FROM articles a
   WHERE a.slug = ${slug}
     AND a.app = 'placement'
@@ -143,12 +150,23 @@ const html = marked(article.content);
                  prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
         />
 
-        <!-- Content Image (displayed mid-article) -->
+        <!-- Content Image 1 (displayed mid-article) -->
         {(article.images?.content || article.content_image_legacy?.url) && (
           <figure class="my-12">
             <img
               src={article.images?.content || article.content_image_legacy.url}
               alt={article.content_image_legacy?.alt || `${article.title} - additional context`}
+              class="w-full h-auto rounded-lg shadow-lg"
+            />
+          </figure>
+        )}
+
+        <!-- Content Image 2 (displayed later in article) -->
+        {(article.images?.content2 || article.content2_image_legacy?.url) && (
+          <figure class="my-12">
+            <img
+              src={article.images?.content2 || article.content2_image_legacy.url}
+              alt={article.content2_image_legacy?.alt || `${article.title} - additional context`}
               class="w-full h-auto rounded-lg shadow-lg"
             />
           </figure>

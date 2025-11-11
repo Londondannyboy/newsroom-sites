@@ -10,7 +10,55 @@ importers:
 
   packages/shared-ui: {}
 
+  sites/gtm:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^9.5.0
+        version: 9.5.0(astro@5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1))
+      '@astrojs/tailwind':
+        specifier: ^6.0.2
+        version: 6.0.2(astro@5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1))(tailwindcss@3.4.18(yaml@2.8.1))
+      '@neondatabase/serverless':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@3.4.18(yaml@2.8.1))
+      astro:
+        specifier: ^5.15.4
+        version: 5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1)
+      marked:
+        specifier: ^17.0.0
+        version: 17.0.0
+      tailwindcss:
+        specifier: ^3.4.18
+        version: 3.4.18(yaml@2.8.1)
+
   sites/placement:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^9.5.0
+        version: 9.5.0(astro@5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1))
+      '@astrojs/tailwind':
+        specifier: ^6.0.2
+        version: 6.0.2(astro@5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1))(tailwindcss@3.4.18(yaml@2.8.1))
+      '@neondatabase/serverless':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@3.4.18(yaml@2.8.1))
+      astro:
+        specifier: ^5.15.4
+        version: 5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1)
+      marked:
+        specifier: ^17.0.0
+        version: 17.0.0
+      tailwindcss:
+        specifier: ^3.4.18
+        version: 3.4.18(yaml@2.8.1)
+
+  sites/puppy:
     dependencies:
       '@astrojs/node':
         specifier: ^9.5.0
@@ -69,6 +117,30 @@ importers:
       astro:
         specifier: ^5.15.4
         version: 5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1)
+      tailwindcss:
+        specifier: ^3.4.18
+        version: 3.4.18(yaml@2.8.1)
+
+  sites/tractor-insurance:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^9.5.0
+        version: 9.5.0(astro@5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1))
+      '@astrojs/tailwind':
+        specifier: ^6.0.2
+        version: 6.0.2(astro@5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1))(tailwindcss@3.4.18(yaml@2.8.1))
+      '@neondatabase/serverless':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@3.4.18(yaml@2.8.1))
+      astro:
+        specifier: ^5.15.4
+        version: 5.15.4(@types/node@24.10.0)(jiti@1.21.7)(rollup@4.53.1)(typescript@5.9.3)(yaml@2.8.1)
+      marked:
+        specifier: ^17.0.0
+        version: 17.0.0
       tailwindcss:
         specifier: ^3.4.18
         version: 3.4.18(yaml@2.8.1)
