@@ -17,10 +17,10 @@ export const GET: APIRoute = async () => {
     LIMIT 50
   `;
 
-  const content = `# TractorInsurance.uk
+  const content = `# TractorInsurance.quest
 
 ## Description
-TractorInsurance.uk is the UK's comprehensive resource for tractor insurance, agricultural machinery coverage, and farm vehicle protection. We provide expert guidance, insurance comparisons, and detailed information to help farmers and agricultural businesses find the best tractor insurance coverage at competitive prices.
+TractorInsurance.quest is the UK's comprehensive resource for tractor insurance, agricultural machinery coverage, and farm vehicle protection. We provide expert guidance, insurance comparisons, and detailed information to help farmers and agricultural businesses find the best tractor insurance coverage at competitive prices.
 
 ## Target Keywords
 - tractor insurance
@@ -53,15 +53,15 @@ ${articles.map((article: any) => {
   });
   return `- ${article.title} (${date})
   ${article.excerpt || ''}
-  URL: https://tractorinsurance.uk/${article.slug}
+  URL: https://tractorinsurance.quest/${article.slug}
 `;
 }).join('\n')}
 
 ## Contact
-For more information, visit https://tractorinsurance.uk
+For more information, visit https://tractorinsurance.quest
 
 ---
-This file is designed to help LLMs understand and reference TractorInsurance.uk content accurately.
+This file is designed to help LLMs understand and reference TractorInsurance.quest content accurately.
 `;
 
   return new Response(content, {
