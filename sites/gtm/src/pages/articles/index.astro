@@ -1,21 +1,29 @@
 ---
 import { sql } from '../../lib/db';
 
-// Fetch all published articles
+// Fetch all published articles with featured images
 const articles = await sql`
   SELECT
-    id,
-    title,
-    excerpt,
-    slug,
-    published_at,
-    created_at,
-    article_angle,
-    word_count
-  FROM articles
-  WHERE app = 'gtm'
-    AND status = 'published'
-  ORDER BY published_at DESC NULLS LAST, created_at DESC
+    a.id,
+    a.title,
+    a.excerpt,
+    a.slug,
+    a.published_at,
+    a.created_at,
+    a.article_angle,
+    a.word_count,
+    a.images,
+    (
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
+      FROM article_image_usage aiu
+      JOIN images i ON i.id = aiu.image_id
+      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
+      LIMIT 1
+    ) as featured_image_legacy
+  FROM articles a
+  WHERE a.app = 'gtm'
+    AND a.status = 'published'
+  ORDER BY a.published_at DESC NULLS LAST, a.created_at DESC
 `;
 ---
 
@@ -58,6 +66,9 @@ const articles = await sql`
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map((article: any) => (
           <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            {(article.images?.featured || article.featured_image_legacy?.url) && (
+              <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
+            )}
             <div class="p-6">
               {article.article_angle && (
                 <span class="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded mb-3">
