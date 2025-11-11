@@ -1,0 +1,360 @@
+---
+import { sql } from '../lib/db';
+
+// Fetch homepage content
+const homepageContent = await sql`
+  SELECT
+    section_type,
+    title,
+    subtitle,
+    content
+  FROM homepage_content
+  WHERE site = 'pvc'
+    AND is_active = true
+  ORDER BY section_order ASC
+`;
+
+// Fetch articles with images - supporting both JSONB column and legacy tables
+const articles = await sql`
+  SELECT
+    a.id,
+    a.title,
+    a.excerpt,
+    a.slug,
+    a.published_at,
+    a.created_at,
+    a.article_angle,
+    a.images,
+    (
+      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
+      FROM article_image_usage aiu
+      JOIN images i ON i.id = aiu.image_id
+      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
+      LIMIT 1
+    ) as featured_image_legacy
+  FROM articles a
+  WHERE a.app = 'pvc'
+    AND a.status = 'published'
+  ORDER BY a.published_at DESC NULLS LAST, a.created_at DESC
+  LIMIT 6
+`;
+
+const sections = {
+  hero: homepageContent.find((s: any) => s.section_type === 'hero'),
+  intro: homepageContent.find((s: any) => s.section_type === 'intro'),
+  ecosystem: homepageContent.find((s: any) => s.section_type === 'ecosystem'),
+  topVCs: homepageContent.find((s: any) => s.section_type === 'top_vcs'),
+  funding: homepageContent.find((s: any) => s.section_type === 'funding'),
+  sectors: homepageContent.find((s: any) => s.section_type === 'sectors'),
+  trends: homepageContent.find((s: any) => s.section_type === 'trends'),
+  howItWorks: homepageContent.find((s: any) => s.section_type === 'how_it_works'),
+  regions: homepageContent.find((s: any) => s.section_type === 'regions'),
+  faq: homepageContent.find((s: any) => s.section_type === 'faq')
+};
+---
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PVC - Venture Capital News UK | Latest VC Funding & Investment News</title>
+  <meta name="description" content="Breaking venture capital news from the UK. Track VC funding rounds, investment trends, and startup funding. Essential reading for entrepreneurs and investors.">
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-2xl font-bold text-blue-600">PVC</h1>
+        </div>
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+          <a href="/articles" class="text-gray-700 hover:text-blue-600 font-medium">News</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  {sections.hero && (
+    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-4xl mx-auto">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            {sections.hero.title}
+          </h2>
+          <p class="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
+            {sections.hero.subtitle}
+          </p>
+          {sections.hero.content?.cta_text && (
+            <div class="bg-blue-900/50 rounded-lg p-6 mt-8">
+              <h3 class="text-2xl font-semibold mb-2">{sections.hero.content.cta_text}</h3>
+              {sections.hero.content.cta_description && (
+                <p class="text-blue-100">{sections.hero.content.cta_description}</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Intro Section -->
+  {sections.intro && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">{sections.intro.title}</h2>
+        <div class="prose prose-lg max-w-none space-y-4">
+          {sections.intro.content?.paragraphs?.map((para: any) => (
+            <p class="text-gray-700 leading-relaxed">{para.text}</p>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- UK VC Ecosystem Section -->
+  {sections.ecosystem && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.ecosystem.title}</h2>
+          {sections.ecosystem.subtitle && <p class="text-xl text-gray-600">{sections.ecosystem.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sections.ecosystem.content?.stats?.map((stat: any) => (
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">{stat.title}</h3>
+              <p class="text-3xl font-bold text-blue-600 mb-2">{stat.value}</p>
+              <p class="text-gray-600 text-sm leading-relaxed">{stat.description}</p>
+            </div>
+          ))}
+        </div>
+        {sections.ecosystem.content?.summary && (
+          <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+            <p class="text-gray-700 leading-relaxed">{sections.ecosystem.content.summary}</p>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Top UK VCs Section -->
+  {sections.topVCs && (
+    <section class="py-16 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.topVCs.title}</h2>
+          {sections.topVCs.subtitle && <p class="text-xl text-gray-600">{sections.topVCs.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {sections.topVCs.content?.firms?.slice(0, 10).map((firm: any) => (
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">{firm.name}</h3>
+              <div class="flex items-center gap-4 mb-3 text-sm flex-wrap">
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">{firm.aum}</span>
+                <span class="text-gray-600">{firm.stage}</span>
+              </div>
+              <p class="text-gray-700 text-sm leading-relaxed mb-3">{firm.description}</p>
+              {firm.notable_investments && (
+                <p class="text-xs text-gray-600"><strong>Notable:</strong> {firm.notable_investments}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Funding Trends Section -->
+  {sections.funding && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.funding.title}</h2>
+          {sections.funding.subtitle && <p class="text-xl text-gray-600">{sections.funding.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {sections.funding.content?.stages?.map((stage: any) => (
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="text-lg font-bold text-gray-900 mb-2">{stage.name}</h3>
+              <p class="text-2xl font-bold text-blue-600 mb-2">{stage.typical_range}</p>
+              <p class="text-gray-700 text-sm leading-relaxed">{stage.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Hot Sectors Section -->
+  {sections.sectors && (
+    <section class="py-16 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.sectors.title}</h2>
+          {sections.sectors.subtitle && <p class="text-xl text-gray-600">{sections.sectors.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sections.sectors.content?.sectors?.map((sector: any) => (
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h3 class="text-lg font-bold text-gray-900 mb-2">{sector.name}</h3>
+              <p class="text-sm text-gray-600 mb-2">{sector.investment}</p>
+              <p class="text-gray-700 text-sm leading-relaxed">{sector.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Trends Section -->
+  {sections.trends && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.trends.title}</h2>
+          {sections.trends.subtitle && <p class="text-xl text-gray-600">{sections.trends.subtitle}</p>}
+        </div>
+        <div class="space-y-6">
+          {sections.trends.content?.trends?.map((trend: any) => (
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">{trend.title}</h3>
+              <p class="text-gray-700 leading-relaxed">{trend.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- How VC Works Section -->
+  {sections.howItWorks && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.howItWorks.title}</h2>
+          {sections.howItWorks.subtitle && <p class="text-xl text-gray-600">{sections.howItWorks.subtitle}</p>}
+        </div>
+        <div class="space-y-6">
+          {sections.howItWorks.content?.steps?.map((step: any, index: number) => (
+            <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-600">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+                  {index + 1}
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
+                  <p class="text-gray-700 leading-relaxed">{step.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Regional Hubs Section -->
+  {sections.regions && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.regions.title}</h2>
+          {sections.regions.subtitle && <p class="text-xl text-gray-600">{sections.regions.subtitle}</p>}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sections.regions.content?.hubs?.map((hub: any) => (
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="text-lg font-bold text-gray-900 mb-2">{hub.name}</h3>
+              <p class="text-sm text-gray-600 mb-2">{hub.focus}</p>
+              <p class="text-gray-700 text-sm leading-relaxed">{hub.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- FAQ Section -->
+  {sections.faq && (
+    <section class="py-16 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">{sections.faq.title}</h2>
+          {sections.faq.subtitle && <p class="text-xl text-gray-600">{sections.faq.subtitle}</p>}
+        </div>
+        <div class="space-y-6">
+          {sections.faq.content?.questions?.map((item: any) => (
+            <div class="bg-gray-50 p-6 rounded-lg">
+              <h3 class="text-lg font-bold text-gray-900 mb-3">{item.question}</h3>
+              <p class="text-gray-700 leading-relaxed">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Latest News -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8">Latest Venture Capital News</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {articles.map((article: any) => (
+          <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            {(article.images?.featured || article.featured_image_legacy?.url) && (
+              <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
+            )}
+            <div class="p-6">
+              {article.article_angle && (
+                <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded mb-3">
+                  {article.article_angle}
+                </span>
+              )}
+              <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                <a href={`/${article.slug}`} class="hover:text-blue-600">
+                  {article.title}
+                </a>
+              </h3>
+              {article.excerpt && (
+                <p class="text-gray-600 mb-4 line-clamp-3">
+                  {article.excerpt}
+                </p>
+              )}
+              <div class="flex items-center justify-between text-sm text-gray-500">
+                <time datetime={article.published_at || article.created_at}>
+                  {new Date(article.published_at || article.created_at).toLocaleDateString('en-GB', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+                <a href={`/${article.slug}`} class="text-blue-600 hover:text-blue-800 font-medium">
+                  Read more →
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {articles.length === 0 && (
+        <div class="text-center py-12">
+          <p class="text-gray-600 text-lg">No news published yet. Check back soon!</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-gray-400">© {new Date().getFullYear()} PVC. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
