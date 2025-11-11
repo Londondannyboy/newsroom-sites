@@ -3,6 +3,16 @@ import { sql } from '../../lib/db';
 
 const { slug } = Astro.params;
 
+// SEO anchor text variations
+const anchorTexts = [
+  "View all leading placement agents",
+  "Top private equity placement agents",
+  "Best placement agents directory",
+  "Complete list of placement agents",
+  "Leading fund placement firms"
+];
+const anchorText = anchorTexts[Math.floor(Math.random() * anchorTexts.length)];
+
 if (!slug) {
   return Astro.redirect('/');
 }
@@ -308,7 +318,7 @@ const people = keyFacts?.people || [];
       <!-- Back Link with SEO -->
       <div class="mt-12">
         <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-          ← View all leading placement agents
+          ← {anchorText}
         </a>
       </div>
     </div>
