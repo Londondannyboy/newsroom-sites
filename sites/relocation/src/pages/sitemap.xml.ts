@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import { sql } from '../lib/db';
 
 export const GET: APIRoute = async ({ site }) => {
-  const siteUrl = site || 'https://relocation.quest';
+  // Remove trailing slash to prevent double slashes in URLs
+  const siteUrl = (site || 'https://relocation.quest').replace(/\/$/, '');
 
   // Fetch all published articles with their published dates
   const articles = await sql`
