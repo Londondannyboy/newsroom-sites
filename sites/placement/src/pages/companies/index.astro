@@ -11,6 +11,8 @@ const companies = await sql`
     description,
     headquarters,
     logo_url,
+    featured_image_url,
+    payload->>'short_description' as short_description,
     specializations,
     global_rank,
     created_at
@@ -72,18 +74,30 @@ const companies = await sql`
         {companies.map((company) => (
           <a
             href={`/companies/${company.slug}`}
-            class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 block"
+            class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden block"
           >
-            <!-- Company Logo -->
-            {company.logo_url && (
-              <div class="mb-4 h-12 flex items-center">
+            <!-- Featured Image -->
+            {company.featured_image_url && (
+              <div class="w-full h-48 overflow-hidden">
                 <img
-                  src={company.logo_url}
-                  alt={`${company.name} logo`}
-                  class="h-10 w-auto"
+                  src={company.featured_image_url}
+                  alt={`${company.name}`}
+                  class="w-full h-full object-cover"
                 />
               </div>
             )}
+
+            <div class="p-6">
+              <!-- Company Logo -->
+              {company.logo_url && (
+                <div class="mb-4 h-12 flex items-center">
+                  <img
+                    src={company.logo_url}
+                    alt={`${company.name} logo`}
+                    class="h-10 w-auto"
+                  />
+                </div>
+              )}
 
             <!-- Company Name & Rank -->
             <div class="flex items-start justify-between mb-3">
@@ -105,9 +119,9 @@ const companies = await sql`
             )}
 
             <!-- Description -->
-            {company.description && (
+            {(company.short_description || company.description) && (
               <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                {company.description}
+                {company.short_description || company.description}
               </p>
             )}
 
@@ -126,6 +140,7 @@ const companies = await sql`
                 )}
               </div>
             )}
+            </div>
           </a>
         ))}
       </div>
