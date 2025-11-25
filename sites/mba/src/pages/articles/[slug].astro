@@ -14,7 +14,7 @@ marked.setOptions({
   gfm: true,      // GitHub Flavored Markdown
 });
 
-// Fetch the article with images
+// Fetch the article
 const articleResult = await sql`
   SELECT
     a.id,
@@ -26,13 +26,8 @@ const articleResult = await sql`
     a.created_at,
     a.article_angle,
     a.word_count,
-    (
-      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
-      FROM article_image_usage aiu
-      JOIN images i ON i.id = aiu.image_id
-      WHERE aiu.article_id = a.id AND aiu.role = 'hero'
-      LIMIT 1
-    ) as hero_image
+    a.featured_asset_url,
+    a.featured_asset_alt
   FROM articles a
   WHERE a.slug = ${slug}
     AND a.app = 'mba'
@@ -54,7 +49,7 @@ const html = marked(article.content);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{article.title} - Placement</title>
+  <title>{article.title} - MBA</title>
   <meta name="description" content={article.excerpt || article.title}>
 </head>
 <body class="bg-gray-50">
@@ -64,7 +59,7 @@ const html = marked(article.content);
       <div class="flex justify-between h-16">
         <div class="flex items-center">
           <h1 class="text-2xl font-bold text-blue-600">
-            <a href="/">Placement</a>
+            <a href="/">MBA</a>
           </h1>
         </div>
         <div class="flex items-center space-x-8">
@@ -105,12 +100,12 @@ const html = marked(article.content);
           <span>{article.word_count} words</span>
         </div>
 
-        <!-- Hero Image -->
-        {article.hero_image?.url && (
+        <!-- Featured Image -->
+        {article.featured_asset_url && (
           <div class="mb-8">
             <img
-              src={article.hero_image.url}
-              alt={article.hero_image.alt || article.title}
+              src={article.featured_asset_url}
+              alt={article.featured_asset_alt || article.title}
               class="w-full h-auto rounded-lg shadow-lg"
             />
           </div>
@@ -148,7 +143,7 @@ const html = marked(article.content);
   <!-- Footer -->
   <footer class="bg-gray-900 text-white py-12 mt-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-gray-400">© {new Date().getFullYear()} Placement. All rights reserved.</p>
+      <p class="text-gray-400">© {new Date().getFullYear()} MBA. All rights reserved.</p>
     </div>
   </footer>
 </body>

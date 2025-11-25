@@ -24,14 +24,8 @@ const articles = await sql`
     a.published_at,
     a.created_at,
     a.article_angle,
-    a.images,
-    (
-      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
-      FROM article_image_usage aiu
-      JOIN images i ON i.id = aiu.image_id
-      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
-      LIMIT 1
-    ) as featured_image_legacy
+    a.featured_asset_url,
+    a.featured_asset_alt
   FROM articles a
   WHERE a.app = 'pvc'
     AND a.status = 'published'
@@ -78,7 +72,7 @@ const sections = {
   </nav>
 
   <!-- Hero Section -->
-  {sections.hero && (
+  {sections.hero && ( 
     <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-4xl mx-auto">
@@ -88,10 +82,10 @@ const sections = {
           <p class="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
             {sections.hero.subtitle}
           </p>
-          {sections.hero.content?.cta_text && (
+          {sections.hero.content?.cta_text && ( 
             <div class="bg-blue-900/50 rounded-lg p-6 mt-8">
               <h3 class="text-2xl font-semibold mb-2">{sections.hero.content.cta_text}</h3>
-              {sections.hero.content.cta_description && (
+              {sections.hero.content.cta_description && ( 
                 <p class="text-blue-100">{sections.hero.content.cta_description}</p>
               )}
             </div>
@@ -102,12 +96,12 @@ const sections = {
   )}
 
   <!-- Intro Section -->
-  {sections.intro && (
+  {sections.intro && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-6">{sections.intro.title}</h2>
         <div class="prose prose-lg max-w-none space-y-4">
-          {sections.intro.content?.paragraphs?.map((para: any) => (
+          {sections.intro.content?.paragraphs?.map((para: any) => ( 
             <p class="text-gray-700 leading-relaxed">{para.text}</p>
           ))}
         </div>
@@ -116,7 +110,7 @@ const sections = {
   )}
 
   <!-- UK VC Ecosystem Section -->
-  {sections.ecosystem && (
+  {sections.ecosystem && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -124,7 +118,7 @@ const sections = {
           {sections.ecosystem.subtitle && <p class="text-xl text-gray-600">{sections.ecosystem.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.ecosystem.content?.stats?.map((stat: any) => (
+          {sections.ecosystem.content?.stats?.map((stat: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               <h3 class="text-lg font-bold text-gray-900 mb-3">{stat.title}</h3>
               <p class="text-3xl font-bold text-blue-600 mb-2">{stat.value}</p>
@@ -132,7 +126,7 @@ const sections = {
             </div>
           ))}
         </div>
-        {sections.ecosystem.content?.summary && (
+        {sections.ecosystem.content?.summary && ( 
           <div class="mt-8 bg-blue-50 p-6 rounded-lg">
             <p class="text-gray-700 leading-relaxed">{sections.ecosystem.content.summary}</p>
           </div>
@@ -142,7 +136,7 @@ const sections = {
   )}
 
   <!-- Top UK VCs Section -->
-  {sections.topVCs && (
+  {sections.topVCs && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -150,7 +144,7 @@ const sections = {
           {sections.topVCs.subtitle && <p class="text-xl text-gray-600">{sections.topVCs.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.topVCs.content?.firms?.slice(0, 10).map((firm: any) => (
+          {sections.topVCs.content?.firms?.slice(0, 10).map((firm: any) => ( 
             <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
               <h3 class="text-xl font-bold text-gray-900 mb-2">{firm.name}</h3>
               <div class="flex items-center gap-4 mb-3 text-sm flex-wrap">
@@ -158,7 +152,7 @@ const sections = {
                 <span class="text-gray-600">{firm.stage}</span>
               </div>
               <p class="text-gray-700 text-sm leading-relaxed mb-3">{firm.description}</p>
-              {firm.notable_investments && (
+              {firm.notable_investments && ( 
                 <p class="text-xs text-gray-600"><strong>Notable:</strong> {firm.notable_investments}</p>
               )}
             </div>
@@ -169,7 +163,7 @@ const sections = {
   )}
 
   <!-- Funding Trends Section -->
-  {sections.funding && (
+  {sections.funding && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -177,7 +171,7 @@ const sections = {
           {sections.funding.subtitle && <p class="text-xl text-gray-600">{sections.funding.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {sections.funding.content?.stages?.map((stage: any) => (
+          {sections.funding.content?.stages?.map((stage: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 class="text-lg font-bold text-gray-900 mb-2">{stage.name}</h3>
               <p class="text-2xl font-bold text-blue-600 mb-2">{stage.typical_range}</p>
@@ -190,7 +184,7 @@ const sections = {
   )}
 
   <!-- Hot Sectors Section -->
-  {sections.sectors && (
+  {sections.sectors && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -198,7 +192,7 @@ const sections = {
           {sections.sectors.subtitle && <p class="text-xl text-gray-600">{sections.sectors.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.sectors.content?.sectors?.map((sector: any) => (
+          {sections.sectors.content?.sectors?.map((sector: any) => ( 
             <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 class="text-lg font-bold text-gray-900 mb-2">{sector.name}</h3>
               <p class="text-sm text-gray-600 mb-2">{sector.investment}</p>
@@ -211,7 +205,7 @@ const sections = {
   )}
 
   <!-- Trends Section -->
-  {sections.trends && (
+  {sections.trends && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -219,7 +213,7 @@ const sections = {
           {sections.trends.subtitle && <p class="text-xl text-gray-600">{sections.trends.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.trends.content?.trends?.map((trend: any) => (
+          {sections.trends.content?.trends?.map((trend: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm">
               <h3 class="text-lg font-bold text-gray-900 mb-3">{trend.title}</h3>
               <p class="text-gray-700 leading-relaxed">{trend.description}</p>
@@ -231,7 +225,7 @@ const sections = {
   )}
 
   <!-- How VC Works Section -->
-  {sections.howItWorks && (
+  {sections.howItWorks && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -239,7 +233,7 @@ const sections = {
           {sections.howItWorks.subtitle && <p class="text-xl text-gray-600">{sections.howItWorks.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.howItWorks.content?.steps?.map((step: any, index: number) => (
+          {sections.howItWorks.content?.steps?.map((step: any, index: number) => ( 
             <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-600">
               <div class="flex items-start gap-4">
                 <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
@@ -258,7 +252,7 @@ const sections = {
   )}
 
   <!-- Regional Hubs Section -->
-  {sections.regions && (
+  {sections.regions && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -266,7 +260,7 @@ const sections = {
           {sections.regions.subtitle && <p class="text-xl text-gray-600">{sections.regions.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.regions.content?.hubs?.map((hub: any) => (
+          {sections.regions.content?.hubs?.map((hub: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 class="text-lg font-bold text-gray-900 mb-2">{hub.name}</h3>
               <p class="text-sm text-gray-600 mb-2">{hub.focus}</p>
@@ -279,7 +273,7 @@ const sections = {
   )}
 
   <!-- FAQ Section -->
-  {sections.faq && (
+  {sections.faq && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -287,7 +281,7 @@ const sections = {
           {sections.faq.subtitle && <p class="text-xl text-gray-600">{sections.faq.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.faq.content?.questions?.map((item: any) => (
+          {sections.faq.content?.questions?.map((item: any) => ( 
             <div class="bg-gray-50 p-6 rounded-lg">
               <h3 class="text-lg font-bold text-gray-900 mb-3">{item.question}</h3>
               <p class="text-gray-700 leading-relaxed">{item.answer}</p>
@@ -304,13 +298,13 @@ const sections = {
       <h2 class="text-3xl font-bold text-gray-900 mb-8">Latest Venture Capital News</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {articles.map((article: any) => (
+        {articles.map((article: any) => ( 
           <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            {(article.images?.featured || article.featured_image_legacy?.url) && (
-              <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
+            {article.featured_asset_url && ( 
+              <img src={article.featured_asset_url} alt={article.featured_asset_alt || article.title} class="w-full h-48 object-cover" />
             )}
             <div class="p-6">
-              {article.article_angle && (
+              {article.article_angle && ( 
                 <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded mb-3">
                   {article.article_angle}
                 </span>
@@ -320,7 +314,7 @@ const sections = {
                   {article.title}
                 </a>
               </h3>
-              {article.excerpt && (
+              {article.excerpt && ( 
                 <p class="text-gray-600 mb-4 line-clamp-3">
                   {article.excerpt}
                 </p>
@@ -342,7 +336,7 @@ const sections = {
         ))}
       </div>
 
-      {articles.length === 0 && (
+      {articles.length === 0 && ( 
         <div class="text-center py-12">
           <p class="text-gray-600 text-lg">No news published yet. Check back soon!</p>
         </div>

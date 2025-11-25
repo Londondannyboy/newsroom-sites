@@ -24,14 +24,8 @@ const articles = await sql`
     a.published_at,
     a.created_at,
     a.article_angle,
-    a.images,
-    (
-      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
-      FROM article_image_usage aiu
-      JOIN images i ON i.id = aiu.image_id
-      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
-      LIMIT 1
-    ) as featured_image_legacy
+    a.featured_asset_url,
+    a.featured_asset_alt
   FROM articles a
   WHERE a.app = 'graduated'
     AND a.status = 'published'
@@ -77,7 +71,7 @@ const sections = {
   </nav>
 
   <!-- Hero Section -->
-  {sections.hero && (
+  {sections.hero && ( 
     <section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-4xl mx-auto">
@@ -87,10 +81,10 @@ const sections = {
           <p class="text-xl md:text-2xl text-green-100 mb-8 leading-relaxed">
             {sections.hero.subtitle}
           </p>
-          {sections.hero.content?.cta_text && (
+          {sections.hero.content?.cta_text && ( 
             <div class="bg-green-900/50 rounded-lg p-6 mt-8">
               <h3 class="text-2xl font-semibold mb-2">{sections.hero.content.cta_text}</h3>
-              {sections.hero.content.cta_description && (
+              {sections.hero.content.cta_description && ( 
                 <p class="text-green-100">{sections.hero.content.cta_description}</p>
               )}
             </div>
@@ -101,12 +95,12 @@ const sections = {
   )}
 
   <!-- Intro Section -->
-  {sections.intro && (
+  {sections.intro && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-6">{sections.intro.title}</h2>
         <div class="prose prose-lg max-w-none space-y-4">
-          {sections.intro.content?.paragraphs?.map((para: any) => (
+          {sections.intro.content?.paragraphs?.map((para: any) => ( 
             <p class="text-gray-700 leading-relaxed">{para.text}</p>
           ))}
         </div>
@@ -115,7 +109,7 @@ const sections = {
   )}
 
   <!-- Role Section -->
-  {sections.role && (
+  {sections.role && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -123,14 +117,14 @@ const sections = {
           {sections.role.subtitle && <p class="text-xl text-gray-600">{sections.role.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.role.content?.items?.map((item: any) => (
+          {sections.role.content?.items?.map((item: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
               <h3 class="text-lg font-bold text-gray-900 mb-3">{item.title}</h3>
               <p class="text-gray-600 text-sm leading-relaxed">{item.description}</p>
             </div>
           ))}
         </div>
-        {sections.role.content?.summary && (
+        {sections.role.content?.summary && ( 
           <div class="mt-8 bg-green-50 p-6 rounded-lg">
             <p class="text-gray-700 leading-relaxed">{sections.role.content.summary}</p>
           </div>
@@ -140,7 +134,7 @@ const sections = {
   )}
 
   <!-- Top Graduate Recruitment Agencies Section -->
-  {sections.topAgencies && (
+  {sections.topAgencies && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -148,23 +142,23 @@ const sections = {
           {sections.topAgencies.subtitle && <p class="text-xl text-gray-600">{sections.topAgencies.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.topAgencies.content?.agencies?.map((agency: any) => (
+          {sections.topAgencies.content?.agencies?.map((agency: any) => ( 
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow p-6">
               <h3 class="text-xl font-bold text-gray-900 mb-3">{agency.name}</h3>
 
-              {agency.specializations && (
+              {agency.specializations && ( 
                 <div class="text-sm text-gray-600 mb-3">
                   <span class="font-semibold">Specializations:</span> {agency.specializations}
                 </div>
               )}
 
-              {agency.locations && (
+              {agency.locations && ( 
                 <div class="text-sm text-gray-600 mb-3">
                   📍 {agency.locations}
                 </div>
               )}
 
-              {agency.description && (
+              {agency.description && ( 
                 <p class="text-gray-600 text-sm leading-relaxed">
                   {agency.description}
                 </p>
@@ -177,7 +171,7 @@ const sections = {
   )}
 
   <!-- Key Sectors Section -->
-  {sections.sectors && (
+  {sections.sectors && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -185,7 +179,7 @@ const sections = {
           {sections.sectors.subtitle && <p class="text-xl text-gray-600">{sections.sectors.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.sectors.content?.sectors?.map((sector: any) => (
+          {sections.sectors.content?.sectors?.map((sector: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div class="flex items-start justify-between mb-3">
                 <h3 class="text-lg font-bold text-gray-900">{sector.sector}</h3>
@@ -194,13 +188,13 @@ const sections = {
                 </span>
               </div>
 
-              {sector.top_employers && (
+              {sector.top_employers && ( 
                 <div class="text-sm text-gray-600 mb-3">
                   <span class="font-semibold">Top Employers:</span> {sector.top_employers}
                 </div>
               )}
 
-              {sector.description && (
+              {sector.description && ( 
                 <p class="text-gray-600 text-sm leading-relaxed">
                   {sector.description}
                 </p>
@@ -213,7 +207,7 @@ const sections = {
   )}
 
   <!-- How It Works Section -->
-  {sections.howItWorks && (
+  {sections.howItWorks && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -221,7 +215,7 @@ const sections = {
           {sections.howItWorks.subtitle && <p class="text-xl text-gray-600">{sections.howItWorks.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.howItWorks.content?.phases?.map((phase: any, index: number) => (
+          {sections.howItWorks.content?.phases?.map((phase: any, index: number) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-600">
               <div class="flex items-start gap-4">
                 <div class="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
@@ -238,7 +232,7 @@ const sections = {
             </div>
           ))}
         </div>
-        {sections.howItWorks.content?.summary && (
+        {sections.howItWorks.content?.summary && ( 
           <div class="mt-8 bg-green-50 p-6 rounded-lg">
             <p class="text-gray-700 font-semibold">{sections.howItWorks.content.summary}</p>
           </div>
@@ -248,7 +242,7 @@ const sections = {
   )}
 
   <!-- Selection Guide Section -->
-  {sections.selection && (
+  {sections.selection && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -256,18 +250,18 @@ const sections = {
           {sections.selection.subtitle && <p class="text-xl text-gray-600">{sections.selection.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.selection.content?.criteria?.map((criterion: any) => (
+          {sections.selection.content?.criteria?.map((criterion: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 class="text-xl font-bold text-gray-900 mb-3">{criterion.name}</h3>
               <p class="text-gray-700 leading-relaxed">{criterion.description}</p>
             </div>
           ))}
         </div>
-        {sections.selection.content?.red_flags && sections.selection.content.red_flags.length > 0 && (
+        {sections.selection.content?.red_flags && sections.selection.content.red_flags.length > 0 && ( 
           <div class="mt-8 bg-red-50 p-6 rounded-lg border border-red-200">
             <h3 class="text-xl font-bold text-red-900 mb-4">⚠️ Red Flags to Watch For</h3>
             <ul class="space-y-2">
-              {sections.selection.content.red_flags.map((flag: string) => (
+              {sections.selection.content.red_flags.map((flag: string) => ( 
                 <li class="text-red-800 flex items-start">
                   <span class="mr-2">•</span>
                   <span>{flag}</span>
@@ -281,7 +275,7 @@ const sections = {
   )}
 
   <!-- Market Trends Section -->
-  {sections.trends && (
+  {sections.trends && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -289,7 +283,7 @@ const sections = {
           {sections.trends.subtitle && <p class="text-xl text-gray-600">{sections.trends.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.trends.content?.trends?.map((trend: any) => (
+          {sections.trends.content?.trends?.map((trend: any) => ( 
             <div class="bg-gray-50 p-6 rounded-lg">
               <h3 class="text-xl font-bold text-gray-900 mb-3">{trend.name}</h3>
               <p class="text-gray-700 leading-relaxed">{trend.description}</p>
@@ -301,7 +295,7 @@ const sections = {
   )}
 
   <!-- Why Use Section -->
-  {sections.whyUse && (
+  {sections.whyUse && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -309,7 +303,7 @@ const sections = {
           {sections.whyUse.subtitle && <p class="text-xl text-gray-600">{sections.whyUse.subtitle}</p>}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.whyUse.content?.reasons?.map((reason: any) => (
+          {sections.whyUse.content?.reasons?.map((reason: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 class="text-lg font-bold text-gray-900 mb-3">{reason.title}</h3>
               <p class="text-gray-600 text-sm leading-relaxed">{reason.description}</p>
@@ -321,7 +315,7 @@ const sections = {
   )}
 
   <!-- FAQ Section -->
-  {sections.faq && (
+  {sections.faq && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -329,7 +323,7 @@ const sections = {
           {sections.faq.subtitle && <p class="text-xl text-gray-600">{sections.faq.subtitle}</p>}
         </div>
         <div class="space-y-6">
-          {sections.faq.content?.questions?.map((item: any) => (
+          {sections.faq.content?.questions?.map((item: any) => ( 
             <div class="bg-gray-50 p-6 rounded-lg">
               <h3 class="text-lg font-bold text-gray-900 mb-3">{item.question}</h3>
               <p class="text-gray-700 leading-relaxed">{item.answer}</p>
@@ -346,13 +340,13 @@ const sections = {
       <h2 class="text-3xl font-bold text-gray-900 mb-8">Latest Articles</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {articles.map((article: any) => (
+        {articles.map((article: any) => ( 
           <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            {(article.images?.featured || article.featured_image_legacy?.url) && (
-              <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
+            {article.featured_asset_url && ( 
+              <img src={article.featured_asset_url} alt={article.featured_asset_alt || article.title} class="w-full h-48 object-cover" />
             )}
             <div class="p-6">
-              {article.article_angle && (
+              {article.article_angle && ( 
                 <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded mb-3">
                   {article.article_angle}
                 </span>
@@ -362,7 +356,7 @@ const sections = {
                   {article.title}
                 </a>
               </h3>
-              {article.excerpt && (
+              {article.excerpt && ( 
                 <p class="text-gray-600 mb-4 line-clamp-3">
                   {article.excerpt}
                 </p>
@@ -384,7 +378,7 @@ const sections = {
         ))}
       </div>
 
-      {articles.length === 0 && (
+      {articles.length === 0 && ( 
         <div class="text-center py-12">
           <p class="text-gray-600 text-lg">No articles published yet. Check back soon!</p>
         </div>

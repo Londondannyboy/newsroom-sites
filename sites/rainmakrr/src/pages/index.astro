@@ -24,14 +24,8 @@ const latestArticles = await sql`
     a.slug,
     a.published_at,
     a.created_at,
-    a.images,
-    (
-      SELECT json_build_object('url', i.cloudinary_url, 'alt', aiu.alt_text)
-      FROM article_image_usage aiu
-      JOIN images i ON i.id = aiu.image_id
-      WHERE aiu.article_id = a.id AND aiu.role = 'featured'
-      LIMIT 1
-    ) as featured_image_legacy
+    a.featured_asset_url,
+    a.featured_asset_alt
   FROM articles a
   WHERE a.app = 'rainmakrr'
     AND a.status = 'published'
@@ -67,7 +61,7 @@ const latestArticles = await sql`
   </nav>
 
   <!-- Hero Section -->
-  {content.hero && (
+  {content.hero && ( 
     <section class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
@@ -82,7 +76,7 @@ const latestArticles = await sql`
   )}
 
   <!-- Introduction -->
-  {content.intro && (
+  {content.intro && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="prose prose-lg max-w-none">
@@ -94,15 +88,15 @@ const latestArticles = await sql`
   )}
 
   <!-- Latest News Articles -->
-  {latestArticles.length > 0 && (
+  {latestArticles.length > 0 && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">Latest StartUp News</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {latestArticles.map((article: any) => (
+          {latestArticles.map((article: any) => ( 
             <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              {(article.images?.featured || article.featured_image_legacy?.url) && (
-                <img src={article.images?.featured || article.featured_image_legacy.url} alt={article.featured_image_legacy?.alt || article.title} class="w-full h-48 object-cover" />
+              {article.featured_asset_url && ( 
+                <img src={article.featured_asset_url} alt={article.featured_asset_alt || article.title} class="w-full h-48 object-cover" />
               )}
               <div class="p-6">
                 <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
@@ -110,7 +104,7 @@ const latestArticles = await sql`
                     {article.title}
                   </a>
                 </h3>
-                {article.excerpt && (
+                {article.excerpt && ( 
                   <p class="text-gray-600 mb-4 line-clamp-3">
                     {article.excerpt}
                   </p>
@@ -141,12 +135,12 @@ const latestArticles = await sql`
   )}
 
   <!-- UK StartUp Ecosystem -->
-  {content.ecosystem && (
+  {content.ecosystem && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">{content.ecosystem.heading}</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {content.ecosystem.stats.map((stat: any) => (
+          {content.ecosystem.stats.map((stat: any) => ( 
             <div class="text-center p-6 bg-purple-50 rounded-lg">
               <div class="text-4xl font-bold text-purple-600 mb-2">{stat.value}</div>
               <div class="text-gray-700">{stat.label}</div>
@@ -158,12 +152,12 @@ const latestArticles = await sql`
   )}
 
   <!-- Trending Topics -->
-  {content.topics && (
+  {content.topics && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">{content.topics.heading}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {content.topics.list.map((topic: any) => (
+          {content.topics.list.map((topic: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm">
               <h3 class="text-xl font-bold text-gray-900 mb-3">{topic.name}</h3>
               <p class="text-gray-700">{topic.description}</p>
@@ -175,12 +169,12 @@ const latestArticles = await sql`
   )}
 
   <!-- Growth Sectors -->
-  {content.sectors && (
+  {content.sectors && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">{content.sectors.heading}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {content.sectors.list.map((sector: any) => (
+          {content.sectors.list.map((sector: any) => ( 
             <div class="bg-purple-50 p-6 rounded-lg text-center">
               <div class="text-3xl mb-3">{sector.icon}</div>
               <h3 class="text-lg font-semibold text-gray-900 mb-2">{sector.name}</h3>
@@ -193,12 +187,12 @@ const latestArticles = await sql`
   )}
 
   <!-- Regional Hubs -->
-  {content.regions && (
+  {content.regions && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">{content.regions.heading}</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {content.regions.list.map((region: any) => (
+          {content.regions.list.map((region: any) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm">
               <h3 class="text-xl font-bold text-gray-900 mb-3">{region.name}</h3>
               <p class="text-gray-700 mb-2">{region.description}</p>
@@ -211,12 +205,12 @@ const latestArticles = await sql`
   )}
 
   <!-- Success Stories -->
-  {content.success && (
+  {content.success && ( 
     <section class="py-16 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">{content.success.heading}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {content.success.stories.map((story: any) => (
+          {content.success.stories.map((story: any) => ( 
             <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-lg">
               <h3 class="text-2xl font-bold text-gray-900 mb-3">{story.company}</h3>
               <p class="text-gray-700 mb-4">{story.description}</p>
@@ -232,12 +226,12 @@ const latestArticles = await sql`
   )}
 
   <!-- How to Stay Updated -->
-  {content.howTo && (
+  {content.howTo && ( 
     <section class="py-16 bg-gray-50">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">{content.howTo.heading}</h2>
         <div class="space-y-6">
-          {content.howTo.steps.map((step: any, index: number) => (
+          {content.howTo.steps.map((step: any, index: number) => ( 
             <div class="bg-white p-6 rounded-lg shadow-sm flex items-start">
               <div class="flex-shrink-0 bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-4">
                 {index + 1}
@@ -254,12 +248,12 @@ const latestArticles = await sql`
   )}
 
   <!-- FAQ -->
-  {content.faq && (
+  {content.faq && ( 
     <section class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Frequently Asked Questions</h2>
         <div class="space-y-6">
-          {content.faq.questions.map((item: any) => (
+          {content.faq.questions.map((item: any) => ( 
             <div class="bg-gray-50 p-6 rounded-lg">
               <h3 class="text-lg font-semibold text-gray-900 mb-3">{item.question}</h3>
               <p class="text-gray-700">{item.answer}</p>

@@ -17,7 +17,8 @@ const articles = await sql`
     updated_at,
     article_angle,
     word_count,
-    images
+    featured_asset_url,
+    featured_asset_alt
   FROM articles
   WHERE app = 'tractor-insurance'
     AND slug = ${slug}
@@ -33,12 +34,6 @@ if (!article) {
 
 // Parse markdown content to HTML
 const htmlContent = marked.parse(article.content || '');
-
-// Handle images from JSONB column
-let images = [];
-if (article.images && typeof article.images === 'object') {
-  images = Array.isArray(article.images) ? article.images : [article.images];
-}
 ---
 
 <!DOCTYPE html>
@@ -92,21 +87,14 @@ if (article.images && typeof article.images === 'object') {
         </div>
       </header>
 
-      <!-- Article Images -->
-      {images.length > 0 && (
+      <!-- Featured Image -->
+      {article.featured_asset_url && (
         <div class="mb-8">
-          {images.map((image: any) => (
-            <figure class="mb-6">
-              <img
-                src={image.url}
-                alt={image.alt || article.title}
-                class="w-full rounded-lg shadow-lg"
-              />
-              {image.caption && (
-                <figcaption class="text-sm text-gray-600 mt-2 text-center">{image.caption}</figcaption>
-              )}
-            </figure>
-          ))}
+          <img
+            src={article.featured_asset_url}
+            alt={article.featured_asset_alt || article.title}
+            class="w-full rounded-lg shadow-lg"
+          />
         </div>
       )}
 
